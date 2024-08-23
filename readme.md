@@ -34,22 +34,6 @@ Before you begin, ensure you have met the following requirements:
 
 6. Click the "Compare Prompts" button to see the improved prompt and the responses.
 
-## Security Note
-
-This demo includes the API key directly in the client-side JavaScript code. For a production environment, it's crucial to keep your API key secure by not exposing it in client-side code. Consider using a backend server to handle API requests and keep your API key private.
-
-## Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](link-to-your-issues-page) if you want to contribute.
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## Contact
-
-If you have any questions or feedback, please reach out to [Your Name/Username](link-to-your-github-profile).
-
 ## Acknowledgements
 
 - This project uses the [Groq API](https://www.groq.com/) for generating improved prompts and responses.
