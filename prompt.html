@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Enhancer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response-container {
+            display: flex;
+            gap: 20px;
+        }
+        .response {
+            flex: 1;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+            min-height: 200px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        #improvedPrompt {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prompt Comparison Tool</h1>
+        <textarea id="originalPrompt" rows="4" placeholder="Enter your original prompt here"></textarea>
+        <button onclick="comparePrompts()">Compare Prompts</button>
+        <div id="improvedPrompt"></div>
+        <h2>Responses</h2>
+        <div class="response-container">
+            <div id="originalResponse" class="response">
+                <h3>Original Prompt Response</h3>
+            </div>
+            <div id="improvedResponse" class="response">
+                <h3>Improved Prompt Response</h3>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'your_actual_api_key_here';
+        const BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+        async function makeRequest(messages) {
+            const response = await axios.post(BASE_URL, {
+                model: "mixtral-8x7b-32768",
+                messages: messages
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response.data.choices[0].message.content.trim();
+        }
+
+        async function improvePrompt(originalPrompt) {
+            const messages = [
+                {role: "system", content: "You are a helpful assistant that improves prompts for AI language models."},
+                {role: "user", content: `Please improve the following prompt to make it more effective for an AI language model:\n\nOriginal prompt: "${originalPrompt}"\n\nImproved prompt:`}
+            ];
+            return await makeRequest(messages);
+        }
+
+        async function generateResponse(prompt) {
+            const messages = [{role: "user", content: prompt}];
+            return await makeRequest(messages);
+        }
+
+        async function comparePrompts() {
+            const originalPrompt = document.getElementById('originalPrompt').value;
+            
+            document.getElementById('improvedPrompt').innerHTML = '<p class="loading">Improving prompt...</p>';
+            document.getElementById('originalResponse').innerHTML = '<h3>Original Prompt Response</h3><p class="loading">Generating response...</p>';
+            document.getElementById('improvedResponse').innerHTML = '<h3>Improved Prompt Response</h3><p class="loading">Generating response...</p>';
+
+            try {
+                const improvedPrompt = await improvePrompt(originalPrompt);
+                document.getElementById('improvedPrompt').innerHTML = `<h3>Improved Prompt:</h3><p>${improvedPrompt}</p>`;
+
+                const [originalResponse, improvedResponse] = await Promise.all([
+                    generateResponse(originalPrompt),
+                    generateResponse(improvedPrompt)
+                ]);
+
+                document.getElementById('originalResponse').innerHTML = `<h3>Original Prompt Response</h3><p>${originalResponse}</p>`;
+                document.getElementById('improvedResponse').innerHTML = `<h3>Improved Prompt Response</h3><p>${improvedResponse}</p>`;
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please check the console for details.');
+            }
+        }
+    </script>
+</body>
+</html>
